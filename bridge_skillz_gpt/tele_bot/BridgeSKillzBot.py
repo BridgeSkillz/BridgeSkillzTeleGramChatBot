@@ -1,6 +1,16 @@
 from openai import OpenAI
 from telegram import Update
-from BridgeSkillzBotBrain import BRAIN
+from bridge_skillz_gpt.tele_bot.BridgeSkillzBotBrain import BRAIN
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from rich.console import Console
+from rich.text import Text
+import os
+from dotenv import load_dotenv
+import logging
+import logging
+from openai import OpenAI
+from telegram import Update
+from bridge_skillz_gpt.tele_bot.BridgeSkillzBotBrain import BRAIN
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from rich.console import Console
 from rich.text import Text
@@ -9,7 +19,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.environ['client_tele_bot_token']
+https_logger = logging.getLogger("httpx")
+https_logger.disabled=True
+
+TOKEN = os.environ['tele_bot_token']
 console = Console()
 
 MODEL = OpenAI(base_url="http://localhost:8001/v1",
@@ -81,3 +94,14 @@ def start_bot():
 
 if __name__ == '__main__':
     main()
+    
+
+    load_dotenv()
+
+    TOKEN = os.environ['tele_bot_token']
+    console = Console()
+
+    MODEL = OpenAI(base_url="http://localhost:8001/v1",
+                   api_key="gybf6btr9j993bg6g")
+
+    # Rest of the code...

@@ -9,7 +9,7 @@ class DBInstance(object):
         return cls._instance
 
     def __init__(self):
-        self.con = sqlite3.connect("Database.sqlite")
+        self.con = sqlite3.connect("local_data/Database.sqlite")
         self.cur = self.con.cursor()
         self.createTablesIfNotExist()
 
