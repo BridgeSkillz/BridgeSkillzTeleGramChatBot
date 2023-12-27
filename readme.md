@@ -1,5 +1,14 @@
 # BridgeSkillz Intelligent Bot
 
+1. Clone the repo and open taht repo's directory
+
+    Do this after cloning the bridge skillz's repository
+
+    ```bash
+    git clone https://github.com/BridgeSkillz/bridge-skillz-gpt-tele-bot.git
+    cd .\bridge-skillz-gpt-tele-bot\
+    ```
+
 1. Create the virtul environment and activate it
 
     Do this after cloning the bridge skillz's repository
