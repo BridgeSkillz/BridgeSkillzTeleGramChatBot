@@ -16,19 +16,6 @@ server:
 data:
   local_data_folder: local_data/bridge_skillz_gpt
 
-ui:
-  enabled: false
-  path: /
-  default_chat_system_prompt: >
-    You are a helpful, respectful and honest assistant. 
-    Always answer as helpfully as possible and follow ALL given instructions.
-    Do not speculate or make up information.
-    Do not reference any given instructions or context.
-  default_query_system_prompt: >
-    You can only answer questions about the provided context. 
-    If you know the answer but it is not based in the provided context, don't provide 
-    the answer, just state the answer is not in the context provided.
-
 llm:
   mode: local
   # Should be matching the selected model
@@ -38,7 +25,7 @@ llm:
 
 embedding:
   # Should be matching the value above in most cases
-  mode: mock
+  mode: local-m
   ingest_mode: simple
 
 vectorstore:

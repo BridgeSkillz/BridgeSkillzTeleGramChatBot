@@ -123,7 +123,7 @@ class LocalSettings(BaseModel):
 
 
 class EmbeddingSettings(BaseModel):
-    mode: Literal["local", "openai", "sagemaker", "mock"]
+    mode: Literal["local", "openai", "sagemaker", "local-m"]
     ingest_mode: Literal["simple", "batch", "parallel"] = Field(
         "simple",
         description=(
@@ -165,19 +165,6 @@ class OpenAISettings(BaseModel):
         "gpt-3.5-turbo",
         description="OpenAI Model to use. Example: 'gpt-4'.",
     )
-
-
-class UISettings(BaseModel):
-    enabled: bool
-    path: str
-    default_chat_system_prompt: str = Field(
-        None,
-        description="The default system prompt to use for the chat mode.",
-    )
-    default_query_system_prompt: str = Field(
-        None, description="The default system prompt to use for the query mode."
-    )
-
 
 class QdrantSettings(BaseModel):
     location: str | None = Field(
@@ -236,7 +223,6 @@ class QdrantSettings(BaseModel):
 class Settings(BaseModel):
     server: ServerSettings
     data: DataSettings
-    ui: UISettings
     llm: LLMSettings
     embedding: EmbeddingSettings
     local: LocalSettings

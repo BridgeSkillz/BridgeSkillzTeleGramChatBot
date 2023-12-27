@@ -34,7 +34,7 @@ class ChatBody(BaseModel):
                         },
                         {
                             "role": "user",
-                            "content": "How do you fry an egg?",
+                            "content": "How to make a PC from scartch?",
                         },
                     ],
                     "stream": False,

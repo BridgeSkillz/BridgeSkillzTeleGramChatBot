@@ -25,7 +25,7 @@ class CompletionsBody(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "prompt": "How do you fry an egg?",
+                    "prompt": "How do you buy a mouse?",
                     "system_prompt": "You are Bikram a BridgeSkillz ai assistant",
                     "stream": False,
                     "use_context": False,

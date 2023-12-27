@@ -40,7 +40,7 @@ class EmbeddingComponent:
 
                 openai_settings = settings.openai.api_key
                 self.embedding_model = OpenAIEmbedding(api_key=openai_settings)
-            case "mock":
+            case "local-m":
                 # Not a random number, is the dimensionality used by
                 # the default embedding model
                 self.embedding_model = MockEmbedding(384)
