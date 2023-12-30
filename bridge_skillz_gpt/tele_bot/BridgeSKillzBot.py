@@ -30,7 +30,7 @@ MODEL = OpenAI(base_url="http://localhost:8001/v1",
 
 
 def getSystemPrompt():
-    with open("bridge_skillz_gpt\\tele_bot\persona.txt", "r") as file:
+    with open("bridge_skillz_gpt/tele_bot/persona.txt", "r") as file:
         return file.read()
 
 
@@ -43,10 +43,11 @@ SYSTEMPROMPT = [{"role": "system", "content": getSystemPrompt()}]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    username = user.username
     history = BRAIN.getChatHistoryByUserID(user.id)
     if not history:
         WelcomeMsg = "Welcome to oooom.in, my name is Acharya Aswini Kumar (Acharya). How may I assist you today?"
-        BRAIN.insertChatHistory(user.id, "assistant", WelcomeMsg)
+        BRAIN.insertChatHistory(user.id, username, "assistant", WelcomeMsg)
         await update.message.reply_text(WelcomeMsg)
     else:
         await update.message.reply_text(f"Yes {user.full_name} How may I assist you ?")
@@ -56,10 +57,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     Query = update.message.text
 
+    username = user.username
+
     if not Query:
         return
     printPrompt(f"({user.full_name}) Query    >>    {Query}")
-    BRAIN.insertChatHistory(user.id, "user", Query)
+    BRAIN.insertChatHistory(user.id, username, "user", Query)
 
     Query = "Reply in 10 Words : " + Query
     ChatHistory = SYSTEMPROMPT + BRAIN.getChatHistoryByUserID(user.id)
@@ -80,7 +83,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             .replace("[/INST", " ")
         )
     printPrompt(f"({user.full_name}) Response >>    {Response}", "blue")
-    BRAIN.insertChatHistory(user.id, "assistant", Response)
+    BRAIN.insertChatHistory(user.id, username, "assistant", Response)
     print("\n\n")
     await update.message.reply_text(Response)
 
@@ -99,7 +102,8 @@ async def post_init(application: Application):
 
 def main():
     # Create the Application and pass it your bot's token.
-    app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
+    app = ApplicationBuilder().token(TOKEN).post_init(
+        post_init).concurrent_updates(False).build()
 
     # Add handlers
     app.add_handler(CommandHandler("start", start))

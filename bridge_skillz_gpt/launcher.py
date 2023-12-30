@@ -12,6 +12,8 @@ from bridge_skillz_gpt.server.embeddings.embeddings_router import embeddings_rou
 from bridge_skillz_gpt.server.health.health_router import health_router
 from bridge_skillz_gpt.server.ingest.ingest_router import ingest_router
 from bridge_skillz_gpt.settings.settings import Settings
+from bridge_skillz_gpt.server.ui.ui_router import ui_router
+from bridge_skillz_gpt.server.ui.ui_router import favicon_router
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,8 @@ def create_app(root_injector: Injector) -> FastAPI:
     async def bind_injector_to_request(request: Request) -> None:
         request.state.injector = root_injector
 
-    app = FastAPI(redoc_url=None,docs_url=None,dependencies=[Depends(bind_injector_to_request)])
+    app = FastAPI(redoc_url=None, docs_url=None, dependencies=[
+                  Depends(bind_injector_to_request)])
 
     app.include_router(completions_router)
     app.include_router(chat_router)
@@ -30,6 +33,8 @@ def create_app(root_injector: Injector) -> FastAPI:
     app.include_router(ingest_router)
     app.include_router(embeddings_router)
     app.include_router(health_router)
+    app.include_router(ui_router)
+    app.include_router(favicon_router)
 
     settings = root_injector.get(Settings)
     if settings.server.cors.enabled:
