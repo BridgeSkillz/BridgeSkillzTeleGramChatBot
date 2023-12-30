@@ -1,3 +1,4 @@
+import asyncio
 from openai import OpenAI
 from telegram import BotCommand, Update
 from bridge_skillz_gpt.tele_bot.BridgeSkillzBotBrain import BRAIN
@@ -16,7 +17,6 @@ from rich.text import Text
 import os
 from dotenv import load_dotenv
 import logging
-
 
 
 load_dotenv()
@@ -40,6 +40,7 @@ def getWelcomeMsg():
     with open(PROJECT_ROOT_PATH/"DB"/"WelcomeMsg.txt", "r") as file:
         return file.read()
 
+
 def getCommunicationRules():
     with open(PROJECT_ROOT_PATH/"DB"/"RulesAndRegulationForResponse.txt", "r") as file:
         return file.read()
@@ -49,34 +50,43 @@ def printPrompt(msg, color="red"):
     console.print(Text(msg, style=color))
 
 
-SYSTEMPROMPT = [{"role": "system", "content": getSystemPrompt()},{"role":"user","content":"Hii"}]
+SYSTEMPROMPT = [{"role": "system", "content": getSystemPrompt()}, {
+    "role": "user", "content": "Hii"}]
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    username = user.username
+    if not username:
+        username = user.full_name
     history = BRAIN.getChatHistoryByUserID(user.id)
     if not history:
         WelcomeMsg = getWelcomeMsg()
-        BRAIN.insertChatHistory(user.id, "assistant", WelcomeMsg)
+        BRAIN.insertChatHistory(user.id,username ,"assistant", WelcomeMsg)
         await update.message.reply_text(WelcomeMsg)
     else:
         await update.message.reply_text(f"Yes {user.full_name} How may I assist you ?")
 
 
-Suffix=getCommunicationRules()
+Suffix = getCommunicationRules()
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         user = update.effective_user
         Query = update.message.text
+        username = user.username
+        if not username:
+            username = user.full_name
+
         Response = ""
         if not Query:
             return
 
         printPrompt(f"({user.full_name}) Query    >>    {Query}")
 
-
-        ChatHistory = SYSTEMPROMPT + BRAIN.getChatHistoryByUserID(user.id) + [{"role": "user", "content": Query + f"({Suffix})"}]
+        ChatHistory = SYSTEMPROMPT + BRAIN.getChatHistoryByUserID(
+            user.id) + [{"role": "user", "content": Query + f"({Suffix})"}]
 
         while not Response:
             Response = MODEL.chat.completions.create(
@@ -91,8 +101,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 .replace("[/INST", " ")
             )
         printPrompt(f"({user.full_name}) Response >>    {Response}", "blue")
-        BRAIN.insertChatHistory(user.id, "user", Query)
-        BRAIN.insertChatHistory(user.id, "assistant", Response)
+        username = user.username
+        BRAIN.insertChatHistory(user.id, username, "user", Query)
+        BRAIN.insertChatHistory(user.id, username, "assistant", Response)
         print("\n\n")
 
         for line in Response.split("\n"):
@@ -101,8 +112,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await asyncio.sleep(2)
     except Exception as e:
         print(f"[+] Error : {e}")
-
-
+    # pass
 
 
 def main():

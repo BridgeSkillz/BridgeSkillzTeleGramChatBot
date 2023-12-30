@@ -1,5 +1,8 @@
 .venv
 
+.env
+window_start.bat
+
 settings-me.yaml
 
 .ruff_cache
