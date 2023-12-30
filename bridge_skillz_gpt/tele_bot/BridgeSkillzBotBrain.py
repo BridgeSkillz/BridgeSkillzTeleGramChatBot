@@ -1,6 +1,6 @@
 import sqlite3
 import os
-
+from bridge_skillz_gpt.constants import PROJECT_ROOT_PATH
 
 class DBInstance(object):
     # Singleton pattern implementation
@@ -11,7 +11,7 @@ class DBInstance(object):
         return cls._instance
 
     def __init__(self):
-        self.con = sqlite3.connect("local_data/Database.sqlite")
+        self.con = sqlite3.connect(PROJECT_ROOT_PATH/"DB"/"Database.sqlite")
         self.cur = self.con.cursor()
         self.createTablesIfNotExist()
 

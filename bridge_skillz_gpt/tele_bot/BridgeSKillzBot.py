@@ -1,6 +1,7 @@
 from openai import OpenAI
 from telegram import BotCommand, Update
 from bridge_skillz_gpt.tele_bot.BridgeSkillzBotBrain import BRAIN
+from bridge_skillz_gpt.constants import PROJECT_ROOT_PATH
 from telegram.ext import (
     ApplicationBuilder,
     Application,
@@ -17,6 +18,7 @@ from dotenv import load_dotenv
 import logging
 
 
+
 load_dotenv()
 
 https_logger = logging.getLogger("httpx")
@@ -30,7 +32,16 @@ MODEL = OpenAI(base_url="http://localhost:8001/v1",
 
 
 def getSystemPrompt():
-    with open("bridge_skillz_gpt/tele_bot/persona.txt", "r") as file:
+    with open(PROJECT_ROOT_PATH/"DB"/"BotBehaviour.txt", "r") as file:
+        return file.read()
+
+
+def getWelcomeMsg():
+    with open(PROJECT_ROOT_PATH/"DB"/"WelcomeMsg.txt", "r") as file:
+        return file.read()
+
+def getCommunicationRules():
+    with open(PROJECT_ROOT_PATH/"DB"/"RulesAndRegulationForResponse.txt", "r") as file:
         return file.read()
 
 
@@ -38,72 +49,65 @@ def printPrompt(msg, color="red"):
     console.print(Text(msg, style=color))
 
 
-SYSTEMPROMPT = [{"role": "system", "content": getSystemPrompt()}]
+SYSTEMPROMPT = [{"role": "system", "content": getSystemPrompt()},{"role":"user","content":"Hii"}]
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    username = user.username
     history = BRAIN.getChatHistoryByUserID(user.id)
     if not history:
-        WelcomeMsg = "Welcome to oooom.in, my name is Acharya Aswini Kumar (Acharya). How may I assist you today?"
-        BRAIN.insertChatHistory(user.id, username, "assistant", WelcomeMsg)
+        WelcomeMsg = getWelcomeMsg()
+        BRAIN.insertChatHistory(user.id, "assistant", WelcomeMsg)
         await update.message.reply_text(WelcomeMsg)
     else:
         await update.message.reply_text(f"Yes {user.full_name} How may I assist you ?")
 
 
+Suffix=getCommunicationRules()
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    Query = update.message.text
+    try:
+        user = update.effective_user
+        Query = update.message.text
+        Response = ""
+        if not Query:
+            return
 
-    username = user.username
-
-    if not Query:
-        return
-    printPrompt(f"({user.full_name}) Query    >>    {Query}")
-    BRAIN.insertChatHistory(user.id, username, "user", Query)
-
-    Query = "Reply in 10 Words : " + Query
-    ChatHistory = SYSTEMPROMPT + BRAIN.getChatHistoryByUserID(user.id)
-
-    await update.effective_chat.send_action(constants.ChatAction.TYPING)
-
-    Response = ""
-    while not Response:
-        Response = MODEL.chat.completions.create(
-            model="local-model",
-            messages=ChatHistory,
-            temperature=0.7,
-        )
-        Response = Response.choices[0].message.content
-        Response = (
-            Response.replace("[INST", " ")
-            .replace("[/INST]", " ")
-            .replace("[/INST", " ")
-        )
-    printPrompt(f"({user.full_name}) Response >>    {Response}", "blue")
-    BRAIN.insertChatHistory(user.id, username, "assistant", Response)
-    print("\n\n")
-    await update.message.reply_text(Response)
+        printPrompt(f"({user.full_name}) Query    >>    {Query}")
 
 
-async def post_init(application: Application):
-    """sets the bot commands in the telegram bot, these commands shows in hamburger menu"""
+        ChatHistory = SYSTEMPROMPT + BRAIN.getChatHistoryByUserID(user.id) + [{"role": "user", "content": Query + f"({Suffix})"}]
 
-    command_description = {"start": "Start your conversation with Acharya"}
+        while not Response:
+            Response = MODEL.chat.completions.create(
+                model="local-model",
+                messages=ChatHistory,
+                temperature=0.5,
+            )
+            Response = Response.choices[0].message.content
+            Response = (
+                Response.replace("[INST", " ")
+                .replace("[/INST]", " ")
+                .replace("[/INST", " ")
+            )
+        printPrompt(f"({user.full_name}) Response >>    {Response}", "blue")
+        BRAIN.insertChatHistory(user.id, "user", Query)
+        BRAIN.insertChatHistory(user.id, "assistant", Response)
+        print("\n\n")
 
-    commands = [
-        # BotCommand(command="start", description=command_description["start"]),
-        # BotCommand(command='help', description=command_description['help']),
-    ]
-    await application.bot.set_my_commands(commands)
+        for line in Response.split("\n"):
+            if line:
+                await update.message.reply_text(Response)
+                await asyncio.sleep(2)
+    except Exception as e:
+        print(f"[+] Error : {e}")
+
+
 
 
 def main():
     # Create the Application and pass it your bot's token.
-    app = ApplicationBuilder().token(TOKEN).post_init(
-        post_init).concurrent_updates(False).build()
+    app = ApplicationBuilder().token(TOKEN).build()
 
     # Add handlers
     app.add_handler(CommandHandler("start", start))
@@ -115,8 +119,4 @@ def main():
 
 
 def start_bot():
-    main()
-
-
-if __name__ == "__main__":
     main()
