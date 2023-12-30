@@ -91,7 +91,7 @@ async def post_init(application: Application):
     command_description = {"start": "Start your conversation with Acharya"}
 
     commands = [
-        BotCommand(command="start", description=command_description["start"]),
+        # BotCommand(command="start", description=command_description["start"]),
         # BotCommand(command='help', description=command_description['help']),
     ]
     await application.bot.set_my_commands(commands)
