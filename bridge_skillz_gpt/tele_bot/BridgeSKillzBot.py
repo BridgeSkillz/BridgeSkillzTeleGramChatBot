@@ -82,6 +82,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         Response = ""
         if not Query:
             return
+        
+        history = BRAIN.getChatHistoryByUserID(user.id)
+        if not history:
+            WelcomeMsg = getWelcomeMsg()
+            BRAIN.insertChatHistory(user.id,username ,"assistant", WelcomeMsg)
+            await update.message.reply_text(WelcomeMsg)
 
         printPrompt(f"({user.full_name}) Query    >>    {Query}")
 

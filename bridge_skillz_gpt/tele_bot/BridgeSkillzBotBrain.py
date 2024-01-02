@@ -25,14 +25,15 @@ class DBInstance(object):
         self.createChatHistoryStore()
 
     def createChatHistoryStore(self):
-        self.cur.execute("""
+        self.cur.execute( """
             CREATE TABLE IF NOT EXISTS CHATHISTORY (
                 id INTEGER PRIMARY KEY,
                 userid TEXT NOT NULL,
                 username TEXT,
                 role TEXT NOT NULL,
                 content TEXT NOT NULL,
-                createdon DATETIME DEFAULT CURRENT_TIMESTAMP
+                createdon DATETIME DEFAULT CURRENT_TIMESTAMP,
+                is_question BOOLEAN DEFAULT 0
             ); """)
 
     def insertChatHistory(self, userid, username, role, content):

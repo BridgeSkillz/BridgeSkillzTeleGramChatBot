@@ -131,20 +131,24 @@
             </div>
         </nav>
         <div>
-            <div class="my-4 bg-stone-700 flex gap-2 px-3 rounded-full justify-start items-center">
-                <a class="hover:bg-red-500 bg-stone-600 rounded-full p-2 h-8" href="/v1/data">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </a>
-                <h1 class="text-center font-bold my-4">
-                    {{data[0][1]}} ----
-                    {% if data[0][2] is none %}
-                    no username
-                    {% else %}
-                    {{ data[0][2] }}
-                    {% endif %} </h1>
+            <div class="my-4 bg-stone-700 flex px-3 rounded-full justify-start items-center">
+                <div class="flex flex-row py-1 px-2 justify-center items-center">
+                    <a class="hover:bg-red-500 bg-stone-600 rounded-full p-2 h-8 mr-4" href="/v1/data">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                    <div class="w-full">
+                        <div class="text-lg font-semibold"> {% if data[0][1] is none %}
+                            no username
+                            {% else %}
+                            {{ data[0][2] }}
+                            {% endif %}</div>
+                        <span class="text-gray-500">
+                            {{data[0][1]}}</span>
+                    </div>
+                </div>
             </div>
             <div class="w-full flex flex-col bg-stone-700 p-4 rounded-3xl">
 
@@ -155,10 +159,66 @@
                     <!-- (1, '5498339506', 'devangspsingh', 'user', 'Hello', '2023-12-30 11:07:58') -->
                     <p class="msg whitespace-pre-wrap">{{ row[4] }}</p>
                     <p class="date">{{row[3]}} --- {{ row[5] | date('%Y-%m-%d %H:%M:%S') }}</p>
+
+                    {% if row[3] == 'user' %}
+
+                    {% if not row[-1]%}
+                    <div class="self-end w-fit mt-2">
+
+                        <button
+                            class="self-end text-sm border-b-4 border-r-4 border-green-800 w-fit bg-green-500 active:bg-green-800 hover:bg-green-600 text-white font-bold px-4 rounded-full transition-colors duration-300 ease-in-out"
+                            onclick="markAsQ('{{ row[0] }}',true)" id="markasQ{{row[0]}}">
+
+                            Mark as Q
+                        </button>
+                    </div>
+                    {%else%}
+
+                    <div class="flex justify-between mt-2 w-full">
+                        <button
+                            class="self-end text-sm border-b-4 border-r-4 border-red-800 w-fit bg-red-500 active:bg-red-800 hover:bg-red-600 text-white font-bold px-4 rounded-full transition-colors duration-300 ease-in-out"
+                            onclick="markAsQ('{{ row[0] }}',false)" id="markasQ{{row[0]}}">
+
+                            Unmark
+
+                        </button>
+                        <div name=""
+                            class="self-end text-sm w-fit bg-green-700 text-white font-bold px-2 rounded-full transition-colors duration-300 ease-in-out">
+                            <svg class="w-4 h-4 inline-block mr-1" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            Q
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
         </div>
 </body>
+<script>
+    function markAsQ(id, is_question) {
+        fetch(`/v1/data/markasQ`, {  // replace '/your-endpoint' with your actual endpoint
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 'id': id, 'is_question': is_question }),
+        })
+            .then(response => response.json())
+            .then(response => {
+
+                location.reload()
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 
 </html>

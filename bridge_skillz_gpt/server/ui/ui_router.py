@@ -11,24 +11,24 @@ ui_router = APIRouter(prefix="/v1", dependencies=[Depends(authenticated)])
 favicon_router = APIRouter()
 
 
-@favicon_router.get('/favicon.ico')
+@favicon_router.get("/favicon.ico")
 async def favicon():
-    favicon_path = 'bridge_skillz_gpt/server/ui/favicon.ico'
+    favicon_path = "bridge_skillz_gpt/server/ui/favicon.ico"
     return FileResponse(favicon_path)
 
 
-def format_date(value, format='%Y-%m-%d %H:%M:%S'):
+def format_date(value, format="%Y-%m-%d %H:%M:%S"):
     if isinstance(value, str):
         return datetime.strptime(value, format).strftime(format)
     return value
 
 
 templates = Jinja2Templates(directory="bridge_skillz_gpt/server/ui/templates")
-templates.env.filters['date'] = format_date
+templates.env.filters["date"] = format_date
 
 
 def get_db():
-    conn = sqlite3.connect(PROJECT_ROOT_PATH/"DB"/"Database.sqlite")
+    conn = sqlite3.connect(PROJECT_ROOT_PATH / "DB" / "Database.sqlite")
     return conn
 
 
@@ -49,4 +49,22 @@ async def read_user_data(request: Request, userid: str):
 
     cursor.execute("SELECT * FROM CHATHISTORY WHERE userid=?", (userid,))
     data = cursor.fetchall()
-    return templates.TemplateResponse("user_data.html", {"request": request, "data": data})
+    return templates.TemplateResponse(
+        "user_data.html", {"request": request, "data": data}
+    )
+
+
+@ui_router.post("/data/markasQ")
+async def mark_as_question(request: Request):
+    data = await request.json()
+    id = data.get("id")
+    is_question = data.get("is_question")
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE CHATHISTORY SET is_question=? WHERE id=?", (is_question, id))
+    conn.commit()
+
+    print(f"{id} - {is_question}")
+
+    return f"{id} is marked as {is_question}"
