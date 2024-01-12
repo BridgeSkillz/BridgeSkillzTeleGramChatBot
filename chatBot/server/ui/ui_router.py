@@ -13,7 +13,7 @@ favicon_router = APIRouter()
 
 @favicon_router.get("/favicon.ico")
 async def favicon():
-    favicon_path = "bridge_skillz_gpt/server/ui/favicon.ico"
+    favicon_path = "chatBot/server/ui/favicon.ico"
     return FileResponse(favicon_path)
 
 
@@ -23,7 +23,7 @@ def format_date(value, format="%Y-%m-%d %H:%M:%S"):
     return value
 
 
-templates = Jinja2Templates(directory="bridge_skillz_gpt/server/ui/templates")
+templates = Jinja2Templates(directory="chatBot/server/ui/templates")
 templates.env.filters["date"] = format_date
 
 

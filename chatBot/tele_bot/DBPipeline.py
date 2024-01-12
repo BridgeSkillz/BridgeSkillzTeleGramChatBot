@@ -27,7 +27,8 @@ class DBInstance(object):
                 role TEXT NOT NULL,
                 content TEXT NOT NULL,
                 createdon DATETIME DEFAULT CURRENT_TIMESTAMP,
-                tag TEXT DEFAULT 'chat'
+                tag TEXT DEFAULT 'chat',
+                is_question BOOLEAN DEFAULT 0
             ); """)
 
     def insertChatHistory(self, userid, username, role, content, tag='chat'):
