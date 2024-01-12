@@ -9,14 +9,16 @@ from chatBot.constants import PROJECT_ROOT_PATH
 load_dotenv()
 
 def getSystemPrompt():
-    with open(PROJECT_ROOT_PATH/"DB"/"ServiceDetails.txt", "r") as file:
-        return file.read()
+    finalPrompt=""
+    with open(PROJECT_ROOT_PATH/"DB"/"BotBehaviour.txt", "r") as file:
+        finalPrompt+= file.read()
+    finalPrompt+="\n"  
+    # with open(PROJECT_ROOT_PATH/"DB"/"ServiceDetails.txt", "r") as file:
+    #     finalPrompt+= file.read()
+    return finalPrompt
 
 def getCommunicationRules():
-    return """
-Keep this rules on high Priority while responding:
-1. Reply in max 2 or 3 lines
-2. at the end of Reply, check i shared my details or not if not kindly request it. Please request one piece of information at a time, starting with my Name, followed by Age, Height, Weight, and finally, Phone number.
+    return """At the end of Reply, request for my remaining details ( Name, Age, Height, Weight, Phone number). Please request one piece of information at a time. after collecting all details force to complete the payment
 """.strip()
 
 def getInitialStaticChat():

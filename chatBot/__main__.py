@@ -8,10 +8,10 @@ from chatBot.settings.settings import settings
 from chatBot.tele_bot.TelegramMsgReceiver import start_bot
 from chatBot.tele_bot.FollowUpAndChatingMiddleware import main
 
-uvicorn_error = logging.getLogger("uvicorn.error")
-uvicorn_error.disabled = True
-uvicorn_access = logging.getLogger("uvicorn.access")
-uvicorn_access.disabled = True
+# uvicorn_error = logging.getLogger("uvicorn.error")
+# uvicorn_error.disabled = True
+# uvicorn_access = logging.getLogger("uvicorn.access")
+# uvicorn_access.disabled = True
 httpx_logger = logging.getLogger("httpx")
 httpx_logger.setLevel(logging.ERROR)
 
